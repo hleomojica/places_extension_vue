@@ -12,9 +12,6 @@ onMounted(() => {
     timer.value--
   }, 1000)
 
-  setTimeout(() => {
-    clearInterval(intervalId)
-  }, timer.value * 1000)
 })
 </script>
 
@@ -26,22 +23,11 @@ onMounted(() => {
         <span
           class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500"
         >
-          {{ counter.value }} Places found
+          {{ counter.count }} Places found
         </span>
       </div>
     </div>
-    <div
-      class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50"
-    >
-      <div class="relative">
-        <div class="w-16 h-16 border-4 border-t-4 border-gray-200 rounded-full animate-spin"></div>
-        <div
-          class="absolute top-0 left-0 w-full h-full flex items-center justify-center text-white font-bold text-2xl"
-        >
-          {{ timer }}
-        </div>
-      </div>
-    </div>
+    
     <!-- <div class="wrapper">
       <nav>
         <RouterLink to="/">Home</RouterLink>

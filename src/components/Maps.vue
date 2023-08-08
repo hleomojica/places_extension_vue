@@ -138,11 +138,15 @@ const obtainPlaces = (links) => {
 function insertPlaces(foundPlaces) {
   if (foundPlaces.lenght === 0) return
   const placeIds = places.value.map((place) => place.place_id)
-  console.log('placeIds', placeIds)
+  // console.log('placeIds', placeIds)
   const newPlaces = foundPlaces.filter((place) => !placeIds.includes(place.place_id))
-  console.log('newPlaces', newPlaces)
+  // console.log('newPlaces', newPlaces)
   places.value.push(...newPlaces)
-  counter.value = places.value.length
+  //update counter
+  console.log("places.value.length", places.value.length);
+  counter.updateCounter(places.value.length)
+
+  // counter.value = places.value.length
 }
 
 async function copyToClipboard() {
