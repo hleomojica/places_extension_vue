@@ -34,7 +34,9 @@
         <thead class="text-xs text-gray-700 uppercase dark:text-gray-400">
           <tr>
             <th scope="col" class="px-6 py-3">Name</th>
-            <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800">ID</th>
+            <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800">
+              ID
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -59,113 +61,122 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import * as cheerio from 'cheerio'
-import Loader from './Loader.vue'
-import { useMapStore } from '@/stores/maps'
+import { ref } from "vue";
+import * as cheerio from "cheerio";
+import Loader from "./Loader.vue";
+import { useMapStore } from "@/stores/maps";
 
-const counter = useMapStore()
+const counter = useMapStore();
 
-const places = ref([])
-const loading = ref(false)
+const places = ref([]);
+const loading = ref(false);
 
 const getPageHtml = async () => {
-  loading.value = true
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+  loading.value = true;
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const result = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: getContentScript
-  })
-  const response = result[0]?.result
+    function: getContentScript,
+  });
+  const response = result[0]?.result;
   if (!response) {
-    console.log('response is null')
-    return
+    console.log("response is null");
+    return;
   }
-  let pageHtml = response.pageHtml || null
-  const links = extractLinks(pageHtml)
-  const places = obtainPlaces(links)
-  insertPlaces(places)
+  let pageHtml = response.pageHtml || null;
+  const links = extractLinks(pageHtml);
+  const obtainedPlaces = obtainPlaces(links);
+  insertPlaces(obtainedPlaces);
+  // Set the data to be stored
+  const data = places.value;
+  // Store the data in the local storage
+  chrome.storage.local.set({ places: data }, () => {
+    console.log("Data stored successfully");
+  });
 
-  console.log(' links-->', links)
-  console.log(' places-->', places)
+  console.log(" links-->", links);
+  console.log(" places-->", places.value);
 
-  // links.forEach((link) => {
-  //   // Extract the place_id from the link
-  //   const codeRegex = /19s(.*)\?/
-  //   const match = codeRegex.exec(link.href)
-  //   const code = match ? match[1] : null
-  //   const newPlace = {
-  //     place_id: code,
-  //     name: link.ariaLabel,
-  //     url: null
-  //   }
-  //   addNewPlace(newPlace)
-  // })
-  loading.value = false
-}
+  loading.value = false;
+};
 
 const extractLinks = (html) => {
-  let links = []
-  const $ = cheerio.load(html)
+  let links = [];
+  const $ = cheerio.load(html);
   links = $('a[href^="https://www.google.com/maps/place/"]')
     .map((i, el) => {
       return {
-        href: $(el).attr('href'),
-        ariaLabel: $(el).attr('aria-label')
-      }
+        href: $(el).attr("href"),
+        ariaLabel: $(el).attr("aria-label"),
+      };
     })
-    .get()
-  return links
-}
+    .get();
+  return links;
+};
 
 const obtainPlaces = (links) => {
-  const places = []
+  const places = [];
   links.forEach((link) => {
     // Extract the place_id from the link
-    const codeRegex = /19s(.*)\?/
-    const match = codeRegex.exec(link.href)
-    const code = match ? match[1] : null
+    const codeRegex = /19s(.*)\?/;
+    const match = codeRegex.exec(link.href);
+    const code = match ? match[1] : null;
     const newPlace = {
       place_id: code,
       name: link.ariaLabel,
-      url: null
-    }
-    places.push(newPlace)
-  })
-  return places
-}
+      url: null,
+    };
+    places.push(newPlace);
+  });
+  return places;
+};
 
 function insertPlaces(foundPlaces) {
-  if (foundPlaces.lenght === 0) return
-  const placeIds = places.value.map((place) => place.place_id)
+  if (foundPlaces.lenght === 0) return false;
+  console.log("places", places.value);
+  const placeIds = places.value.map((place) => place.place_id);
   // console.log('placeIds', placeIds)
-  const newPlaces = foundPlaces.filter((place) => !placeIds.includes(place.place_id))
+  const newPlaces = foundPlaces.filter(
+    (place) => !placeIds.includes(place.place_id)
+  );
   // console.log('newPlaces', newPlaces)
-  places.value.push(...newPlaces)
+  places.value.push(...newPlaces);
   //update counter
   console.log("places.value.length", places.value.length);
-  counter.updateCounter(places.value.length)
+  counter.updateCounter(places.value.length);
+  return true;
 
   // counter.value = places.value.length
 }
 
 async function copyToClipboard() {
-  let text = ''
+  let text = "";
   places.value.forEach((place) => {
-    text += `${place.name}, ${place.place_id}\n`
-  })
-  await navigator.clipboard.writeText(text)
-  console.log('Content copied to clipboard')
+    text += `${place.name}, ${place.place_id}\n`;
+  });
+  await navigator.clipboard.writeText(text);
+  console.log("Content copied to clipboard");
 }
 
 const getContentScript = () => {
   function getPageHtml() {
-    return document.documentElement.outerHTML
+    return document.documentElement.outerHTML;
   }
-  return { pageHtml: getPageHtml() }
-}
+  return { pageHtml: getPageHtml() };
+};
 
 const clearPlaces = () => {
-  places.value = []
-}
+  places.value = [];
+};
+
+// on mounted
+const getPlacesFromStorage = () => {
+  chrome.storage.local.get(["places"], (result) => {
+    console.log("Value currently is ", result.places);
+    places.value = result.places ? [...result.places] : [];
+    counter.updateCounter(places.value.length);
+  });
+};
+
+getPlacesFromStorage();
 </script>
