@@ -3,9 +3,8 @@ import { RouterLink, RouterView } from "vue-router";
 import { ref, onMounted } from "vue";
 import Maps from "./components/Maps.vue";
 import { useMapStore } from "@/stores/maps";
+import Header from "./components/Header.vue";
 const counter = useMapStore();
-const isLoading = ref(true);
-const timer = ref(5);
 
 onMounted(() => {
   console.log("mounted");
@@ -13,21 +12,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <header>
-    <div class="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md space-x-4">
-      <div class="flex flex-col items-center justify-center">
-        <div class="text-xl font-medium text-black mb-2">
-          Place ID extractor
-        </div>
-        <span
-          class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500"
-        >
-          {{ counter.count }} Places found
-        </span>
-      </div>
-    </div>
-  </header>
-  <Maps />
+  <div class="flex flex-col w-full gap-4">
+    <Header />
+    <Maps />
+  </div>
 
   <RouterView />
 </template>
