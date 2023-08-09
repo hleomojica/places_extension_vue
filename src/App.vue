@@ -1,25 +1,24 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import { ref, onMounted } from 'vue'
-import Maps from './components/Maps.vue'
-import { useMapStore } from '@/stores/maps'
-const counter = useMapStore()
-const isLoading = ref(true)
-const timer = ref(5)
+import { RouterLink, RouterView } from "vue-router";
+import { ref, onMounted } from "vue";
+import Maps from "./components/Maps.vue";
+import { useMapStore } from "@/stores/maps";
+const counter = useMapStore();
+const isLoading = ref(true);
+const timer = ref(5);
 
 onMounted(() => {
-  const intervalId = setInterval(() => {
-    timer.value--
-  }, 1000)
-
-})
+  console.log("mounted");
+});
 </script>
 
 <template>
   <header>
     <div class="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md space-x-4">
       <div class="flex flex-col items-center justify-center">
-        <div class="text-xl font-medium text-black mb-2">Place ID extractor</div>
+        <div class="text-xl font-medium text-black mb-2">
+          Place ID extractor
+        </div>
         <span
           class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500"
         >
@@ -27,13 +26,6 @@ onMounted(() => {
         </span>
       </div>
     </div>
-    
-    <!-- <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">Record</RouterLink>
-      </nav>
-    </div> -->
   </header>
   <Maps />
 

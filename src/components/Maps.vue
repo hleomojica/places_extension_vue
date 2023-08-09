@@ -145,8 +145,6 @@ function insertPlaces(foundPlaces) {
   console.log("places.value.length", places.value.length);
   counter.updateCounter(places.value.length);
   return true;
-
-  // counter.value = places.value.length
 }
 
 async function copyToClipboard() {
@@ -171,11 +169,13 @@ const clearPlaces = () => {
 
 // on mounted
 const getPlacesFromStorage = () => {
-  chrome.storage.local.get(["places"], (result) => {
-    console.log("Value currently is ", result.places);
-    places.value = result.places ? [...result.places] : [];
-    counter.updateCounter(places.value.length);
-  });
+  if (import.meta.env.VITE_MODE === "DEV") {
+    chrome.storage.local.get(["places"], (result) => {
+      console.log("Value currently is ", result.places);
+      places.value = result.places ? [...result.places] : [];
+      counter.updateCounter(places.value.length);
+    });
+  }
 };
 
 getPlacesFromStorage();
