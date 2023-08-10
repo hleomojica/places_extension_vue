@@ -63,7 +63,6 @@ const counter = useMapStore();
 const placesStore = usePlacesStore();
 
 // use compiute
-
 // const places = ref(placess);
 const loading = ref(placesStore.loading);
 

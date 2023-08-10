@@ -41,7 +41,6 @@ nav {
 nav a.router-link-exact-active {
   color: var(--color-text);
 }
-
 nav a.router-link-exact-active:hover {
   background-color: transparent;
 }
@@ -62,7 +61,6 @@ nav a:first-of-type {
     flex-direction: row;
     place-items: center;
   }
-
   .logo {
     margin: 0 2rem 0 0;
   }
@@ -77,7 +75,6 @@ nav a:first-of-type {
     text-align: left;
     margin-left: -1rem;
     font-size: 1rem;
-
     padding: 1rem 0;
     margin-top: 1rem;
   }
