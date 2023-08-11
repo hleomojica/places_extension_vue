@@ -12,6 +12,9 @@ export const usePlacesStore = defineStore("places", {
     setPlaces(value) {
       this.places = value;
     },
+    addPlaces(arr = []) {
+      this.places.push(...arr);
+    },
   },
 
   getters: {

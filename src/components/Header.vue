@@ -19,7 +19,7 @@ const getPageHtml = async () => {
     // Get the data from file mock.json on root
     const response = await fetch("/mock.json");
     const data = await response.json();
-    console.log("Mock data -->", data);
+    // console.log("Mock data -->", data);
     insertPlaces(data);
   } else {
     try {
@@ -38,7 +38,6 @@ const getPageHtml = async () => {
         console.log("response is null");
         return;
       }
-
       // Parse the html and extract the links
       let pageHtml = response.pageHtml || null;
       const links = extractLinks(pageHtml);
@@ -46,10 +45,6 @@ const getPageHtml = async () => {
 
       // update local var and save in the store
       insertPlaces(obtainedPlaces);
-      updateLocalStorage();
-      console.log(" links-->", links);
-      console.log(" places-->", placesStore.places);
-
     } catch (error) {
       setAlert("Error loading places", "error");
       console.log("error", error);
@@ -94,19 +89,18 @@ const obtainPlaces = (links) => {
 function insertPlaces(foundPlaces) {
   if (foundPlaces.lenght === 0) return false;
   const placeIds = placesStore.places.map((place) => place.place_id);
-  // console.log('placeIds', placeIds)
   const newPlaces = foundPlaces.filter(
     (place) => !placeIds.includes(place.place_id)
   );
-
   console.log("newPlaces --> ", newPlaces);
   if (newPlaces.length === 0) {
     setAlert("No places added", "error");
     return false;
   }
-  setAlert(`${newPlaces.length} places added`, "success");
-  placesStore.setPlaces(newPlaces);
+  placesStore.addPlaces(newPlaces);
   counter.updateCounter(placesStore.places.length);
+  updateLocalStorage();
+  setAlert(`${newPlaces.length} places added`, "success");
   return true;
 }
 
@@ -122,6 +116,7 @@ async function copyToClipboard() {
   placesStore.places.forEach((place) => {
     text += `${place.name}, ${place.place_id}\n`;
   });
+  text = text.trim();
   await navigator.clipboard.writeText(text);
   setAlert("Copied", "success");
 }
@@ -143,6 +138,7 @@ const updateLocalStorage = () => {
   chrome.storage.local.set({ places: data }, () => {
     console.log("Data stored successfully");
   });
+};
 
 /*
  * Set alert on top of the page
@@ -155,7 +151,9 @@ const setAlert = (text = "", type = "success") => {
 };
 </script>
 <template>
-  <div class="w-full p-5 mx-auto bg-white rounded-lg shadow-sm border">
+  <div
+    class="w-full p-5 mx-auto sticky top-1 z-50 bg-white rounded-lg shadow-sm border"
+  >
     <div class="relative">
       <span
         v-if="alert.text"
