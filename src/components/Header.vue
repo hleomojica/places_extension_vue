@@ -27,7 +27,7 @@ const getPageHtml = async () => {
         active: true,
         currentWindow: true,
       });
-
+      // Execute the script on the current tab
       const result = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: getContentScript,
@@ -39,22 +39,19 @@ const getPageHtml = async () => {
         return;
       }
 
+      // Parse the html and extract the links
       let pageHtml = response.pageHtml || null;
       const links = extractLinks(pageHtml);
       const obtainedPlaces = obtainPlaces(links);
 
+      // update local var and save in the store
       insertPlaces(obtainedPlaces);
-
+      updateLocalStorage();
       console.log(" links-->", links);
-      console.log(" places-->", places.value);
+      console.log(" places-->", placesStore.places);
 
-      // Store the data in the local storage
-      const data = placesStore.places;
-
-      chrome.storage.local.set({ places: data }, () => {
-        console.log("Data stored successfully");
-      });
     } catch (error) {
+      setAlert("Error loading places", "error");
       console.log("error", error);
     } finally {
       loading.value = false;
@@ -101,11 +98,14 @@ function insertPlaces(foundPlaces) {
   const newPlaces = foundPlaces.filter(
     (place) => !placeIds.includes(place.place_id)
   );
+
   console.log("newPlaces --> ", newPlaces);
-  if (newPlaces.length === 0) return false;
+  if (newPlaces.length === 0) {
+    setAlert("No places added", "error");
+    return false;
+  }
+  setAlert(`${newPlaces.length} places added`, "success");
   placesStore.setPlaces(newPlaces);
-  //update counter
-  // console.log("places -->", placesStore.places.length);
   counter.updateCounter(placesStore.places.length);
   return true;
 }
@@ -126,9 +126,23 @@ async function copyToClipboard() {
   setAlert("Copied", "success");
 }
 
+/*
+ * Clear places and counter
+ */
 const clearPlaces = () => {
-  places.value = [];
+  placesStore.places = [];
+  updateLocalStorage();
+  counter.updateCounter(0);
 };
+
+/*
+ * Update local storage
+ */
+const updateLocalStorage = () => {
+  const data = placesStore.places;
+  chrome.storage.local.set({ places: data }, () => {
+    console.log("Data stored successfully");
+  });
 
 /*
  * Set alert on top of the page

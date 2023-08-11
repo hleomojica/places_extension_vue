@@ -6,40 +6,38 @@ import { usePlacesStore } from "@/stores/places";
 
 const counter = useMapStore();
 const placesStore = usePlacesStore();
-
-// use compiute
-// const places = ref(placess);
 const loading = ref(placesStore.loading);
 
-// on mounted
 const getPlacesFromStorage = () => {
   console.log("Env var -->", import.meta.env.VITE_ENV);
   if (import.meta.env.VITE_ENV === "DEV") {
     return;
   }
-  chrome.storage.local.get(["places"], (result) => {
-    console.log("Value currently is ", result.places);
-    places.value = result.places ? [...result.places] : [];
-    counter.updateCounter(places.value.length);
+
+  chrome.storage.local.get(["places"]).then((result) => {
+    placesStore.places = result.places ? Object.values(result.places) : [];
+    counter.updateCounter(placesStore.places.length);
   });
 };
 
 getPlacesFromStorage();
 </script>
 <template>
-  <div class="w-full p-5 mx-auto bg-white rounded-lg shadow-sm border">
+  <div class="w-full mx-auto bg-white rounded-lg shadow-sm border">
     <Loader v-if="loading" />
     <!-- TABLE -->
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase dark:text-gray-400">
           <tr>
-            <th scope="col" class="px-2 py-2 font-medium text-md">Name</th>
+            <th scope="col" class="px-2 py-2 font-medium text-md text-center">
+              Name
+            </th>
             <th
               scope="col"
-              class="px-2 py-2 font-medium text-md bg-gray-50 dark:bg-gray-800"
+              class="px-2 py-2 font-medium text-md text-center bg-gray-50 dark:bg-gray-800"
             >
-              ID
+              Place ID
             </th>
           </tr>
         </thead>
