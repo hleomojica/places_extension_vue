@@ -7,7 +7,7 @@ import Header from "./components/Header.vue";
 const counter = useMapStore();
 
 onMounted(() => {
-  console.log("mounted");
+  console.log("Main chrome extension mounted");
 });
 </script>
 
